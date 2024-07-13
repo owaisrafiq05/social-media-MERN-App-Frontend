@@ -1,13 +1,28 @@
-import React from 'react'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Signup from './components/Signup';
+import OtpVerification from './components/OtpVerification';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard/Dashboard';
+import PrivateRoute from './components/PrivateRoute';
+import Post from './components/Dashboard/Post'; // Import the new component
+
 
 const App = () => {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-    </div>
-  )
-}
+    return (
+        <Router>
+            <div className="App">
+                <Routes>
+                    <Route path="/creator/signup" element={<Signup />} />
+                    <Route path="/creator/otp" element={<OtpVerification />} />
+                    <Route path="/creator/login" element={<Login />} />
+                    <Route path="/creator/dashboard/*" element={<PrivateRoute element={<Dashboard />} />} />
+                    <Route path="/creator/dashboard/view-post/:id" element={<Post />} /> {/* Add new route */}
+                    <Route path="*" element={<Signup />} /> {/* Redirect to Signup by default */}
+                </Routes>
+            </div>
+        </Router>
+    );
+};
 
-export default App
+export default App;

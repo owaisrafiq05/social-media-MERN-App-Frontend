@@ -1,0 +1,104 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { BASE_URL } from '../../../config.js';
+import Cookies from 'js-cookie';
+
+const AddPost = () => {
+    const [content, setContent] = useState('');
+    const [images, setImages] = useState([]);
+    const [videos, setVideos] = useState([]);
+    const [message, setMessage] = useState('');
+
+    const handleImageChange = (e) => {
+        setImages([...images, ...e.target.files]);
+    };
+
+    const handleVideoChange = (e) => {
+        setVideos([...videos, ...e.target.files]);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        const creatorID = localStorage.getItem('creatorID'); // Get creator ID from local storage
+
+        formData.append('creator', creatorID);
+        formData.append('content', content);
+        images.forEach(image => formData.append('images', image));
+        videos.forEach(video => formData.append('videos', video));
+
+        const token = Cookies.get('token');
+        try {
+            const response = await axios.post(`${BASE_URL}/api/post/add`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setContent('');
+            setImages([]);
+            setVideos([]);
+            setMessage('Post added successfully');
+        } catch (error) {
+            console.error('Error adding post:', error);
+            setMessage('Failed to add post');
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 to-purple-600">
+            <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl p-8 space-y-8">
+                <h2 className="text-center text-4xl font-extrabold text-gray-900 mb-8">Add Post</h2>
+                {message && (
+                    <div className={`text-center mb-4 ${message === 'Post added successfully' ? 'text-green-500' : 'text-red-500'}`}>
+                        {message}
+                    </div>
+                )}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="content" className="block text-sm font-medium text-gray-700">Post Content</label>
+                        <textarea
+                            id="content"
+                            name="content"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Write your post content here..."
+                            className="w-full p-2 mt-1 border border-gray-300 rounded"
+                            rows="4"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="images" className="block text-sm font-medium text-gray-700">Upload Images (Not more than 10 mbs)</label>
+                        <input
+                            id="images"
+                            name="images"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageChange}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mt-2"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="videos" className="block text-sm font-medium text-gray-700">Upload Videos (Not more than 10 mbs)</label>
+                        <input
+                            id="videos"
+                            name="videos"
+                            type="file"
+                            accept="video/*"
+                            multiple
+                            onChange={handleVideoChange}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mt-2"
+                        />
+                    </div>
+                    <div className="flex justify-center">
+                        <button type="submit" className="bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-200">
+                            Add Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default AddPost;
